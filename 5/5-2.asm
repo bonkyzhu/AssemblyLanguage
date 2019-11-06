@@ -1,0 +1,63 @@
+DATA SEGMENT
+	; 利用相对基址变址， score[bx][si]
+	SCORE DB 99, 34, 55, 98, 89, 97, 45, 67
+		  DB 89, 60, 55, 98, 89, 97, 45, 67	
+		  DB 90, 34, 55, 98, 89, 97, 60, 67
+	OUTPUT DB 6 DUP(?)
+		  DB 6 DUP(?)
+		  DB 6 DUP(?)
+	CN DW 0
+	SN DW 0
+	MAX DB 3 DUP(0)
+	MIN DB 3 DUP(0)
+DATA ENDS
+
+STACK SEGMENT
+	DW 128 DUP(?)
+STACK ENDS
+
+CODE SEGMENT
+	ASSUME DS:DATA, CS:CODE
+START:
+  MOV AX, DATA
+  MOV DS, AX
+
+  MOV CX, 3
+
+LOOP1: 
+  ;进行每个班的切换
+  ;判断第一个括号开始地址
+  PUSH CX
+  MOV BX, 3
+  SUB BX, CX 
+  MOV AL, 8 
+  MUL BL ;开始=8*(循环次数-1)=8*(3-CX)
+  MOV BX, AX
+  ;判断循环次数
+  MOV CX, 7
+
+LOOP2:
+  PUSH CX
+
+LOOP3:
+  MOV SI, 7
+  SUB SI, CX
+  MOV AL, SCORE[BX][SI+1] 
+  CMP SCORE[BX][SI], AL
+  JA ENDLOOP
+  XCHG SCORE[BX][SI], AL
+  XCHG SCORE[BX][SI+1], AL
+  JMP ENDLOOP
+
+ENDLOOP:
+  LOOP LOOP3
+  POP CX
+  LOOP LOOP2
+  POP CX
+  LOOP LOOP1
+
+  MOV AH, 4CH
+  INT 21H
+
+CODE ENDS
+  END START

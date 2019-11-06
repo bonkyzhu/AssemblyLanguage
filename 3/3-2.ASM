@@ -1,0 +1,33 @@
+DATA SEGMENT
+    INFO DB 'PLEASE INPUT STU NO MORE THAN 4: $'
+    STU DB 0DH, 0AH, 'NOBODY       $'
+        DB 0DH, 0AH, 'WANGMINGCHAO $'
+        DB 0DH, 0AH, 'LIGUIMEI     $'
+        DB 0DH, 0AH, 'ZHAOKANGSHENG$'
+        DB 0DH, 0AH, 'BAIHAOYU     $'
+    
+DATA ENDS
+
+CODES SEGMENT
+    ASSUME CS:CODES, DS:DATA
+START:
+    MOV AX, DATA
+    MOV DS, AX
+
+    MOV AH, 01H
+    INT 21H
+
+    SUB AL, 30H
+    MOV BL, 16
+    MUL BL  ;得到名字相对地址AL
+
+    MOV DX, OFFSET STU
+    ADD DX, AX
+    MOV AH, 9
+    INT 21H
+
+    MOV AH, 4CH
+    INT 21H
+CODES ENDS
+    END START
+

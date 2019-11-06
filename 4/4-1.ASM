@@ -1,0 +1,68 @@
+DATA SEGMENT
+    INFO DB 'PLEASE INPUT NO MORE THAN 10:$'
+    BUF DB 30, ?, 31 DUP(?)
+    NUMBER DW ?
+    CAPITAL DW ?
+    LETTER DW ?
+    COU DW ?
+    OUTPUT DW NUMBER, ' ', CAPITAL, ' ', LETTER, '$'
+DATA ENDS
+
+CODES SEGMENT
+    ASSUME CS:CODES, DS:DATA
+START:
+    MOV AX, DATA
+    MOV DS, AX
+    MOV DX, OFFSET INFO
+
+    MOV AH, 9
+    INT 21H
+
+    MOV DX, OFFSET BUF
+    MOV AH, 10
+    INT 21H
+
+    MOV AL, BUF[1]
+    MOV AH, 0
+    ADD AX, 2
+    MOV COU, AX
+    MOV BX, 1
+
+NEXT: 
+    INC BX
+    MOV AL, BUF[BX]
+    CMP BX, COU
+    JAE EXIT
+    CMP AL, 30H
+    JB NEXT
+    CMP AL, 39H
+    JA CAP
+    INC NUMBER
+    JMP NEXT
+
+CAP:
+    CMP AL, 31H
+    JB NEXT
+    CMP AL, 5AH
+    JA LET
+    INC CAPITAL
+    JMP NEXT
+
+LET:
+    CMP AL, 61H
+    JB NEXT
+    CMP AL, 7AH
+    JA CAP
+
+    INC LETTER
+    JMP NEXT
+
+EXIT:
+    MOV DX, OFFSET OUTPUT
+    MOV AH, 9
+    INT 21H
+    MOV AH, 4CH
+    INT 21H
+
+CODES ENDS
+    END START

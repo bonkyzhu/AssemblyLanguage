@@ -1,0 +1,79 @@
+DATA SEGMENT
+    HEX DB '123456789ABCDE$'
+    MESSAGE DB 'INPUT NUM NO MORE THAN 256:$'
+    NUM DB 4, ?, 5 DUP('$')
+    OUTPUT DB 0DH, 0AH, 10 DUP('$')
+DATA ENDS
+
+CODES SEGMENT
+    ASSUME CS:CODES, DS:DATA
+START:
+    MOV AX, DATA
+    MOV DS, AX
+    MOV DX, OFFSET MESSAGE
+    MOV DI, OFFSET NUM
+    MOV SI, OFFSET NUM
+    ADD SI, 2
+
+
+    MOV AH, 9
+    INT 21H
+    MOV DX, OFFSET NUM
+    MOV AH, 10
+    INT 21H
+    MOV AX, 0 ;将AX清零
+    MOV CX, 0
+
+    ;判断位数
+    MOV AL, [DI+3]
+    CMP AL, 0DH
+    JZ NEXT1
+    MOV AL, [DI+4]
+    CMP AL, 0DH
+    JZ NEXT10
+
+NEXT100:
+    MOV BL, 100
+    MOV AL, [SI]
+    INC SI
+    SUB AL, 30H
+    MUL BL
+    ADD CX, AX
+
+NEXT10:
+    MOV BL, 10
+    MOV AL, [SI]
+    INC SI
+    SUB AL, 30H
+    MUL BL
+    ADD CX, AX
+
+NEXT1:
+    MOV BL, 1
+    MOV AL, [SI]
+    SUB AL, 30H
+    MUL BL
+    ADD CX, AX
+
+    MOV BP, OFFSET OUTPUT
+    MOV BX, OFFSET HEX
+
+    MOV DL, 10H
+    MOV AX, CX
+    DIV DL
+    XLAT
+    DEC AL
+    MOV [BP+2], AL
+    MOV AL, AH
+    DEC AL
+    XLAT
+    MOV [BP+3], AL
+
+    MOV DX, OFFSET OUTPUT
+    MOV AH, 09
+    INT 21H
+    MOV AH, 4CH
+    INT 21H
+
+CODES ENDS
+    END START
